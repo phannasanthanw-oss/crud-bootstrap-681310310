@@ -1,0 +1,43 @@
+services:
+  # 1. Database (MySQL)
+  db:
+    image: mysql:8.0
+    container_name: crud_db
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpassword
+      MYSQL_DATABASE: my_crud_db
+      MYSQL_USER: user
+      MYSQL_PASSWORD: userpassword
+    ports:
+      - "3307:3306"
+    volumes:
+      - db_data:/var/lib/mysql
+
+  # 2. Database Management Tool (phpMyAdmin)
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    container_name: crud_phpmyadmin
+    restart: always
+    environment:
+      PMA_HOST: db
+      PMA_PORT: 3306
+    ports:
+      - "8081:80" # <--- เปลี่ยนจาก 8080 เป็น 8081
+    depends_on:
+      - db
+
+  # 3. Web Server (PHP + Apache)
+  web:
+    build: .
+    container_name: crud_web
+    restart: always
+    ports:
+      - "8000:80"
+    volumes:
+      - ./www:/var/www/html
+    depends_on:
+      - db
+
+volumes:
+  db_data:
